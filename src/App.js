@@ -1,5 +1,4 @@
 import React from "react";
-import { act } from "react-dom/test-utils";
 
 function useSemiPersistentState(key) {
   const [value, setValue] = React.useState(localStorage.getItem(key) || "");
@@ -10,6 +9,8 @@ function useSemiPersistentState(key) {
 
   return [value, setValue];
 }
+
+const API_ENDPOINT = "https://hn.algolia.com/api/v1/search?query=";
 
 function App() {
   const initialStories = [
@@ -38,13 +39,6 @@ function App() {
     isError: false,
   });
 
-  function getAsyncStories() {
-    // return new Promise((resolve, reject) => setTimeout(() => reject(), 2000));
-    return new Promise(resolve =>
-      setTimeout(() => resolve({ data: { stories: initialStories } }), 2000)
-    );
-  }
-
   function handleSearch(event) {
     setSearchTerm(event.target.value);
   }
@@ -55,10 +49,6 @@ function App() {
       payload: item,
     });
   }
-
-  const searchedStories = stories.data.filter(story =>
-    story.title.toLowerCase().includes(searchTerm.toLowerCase())
-  );
 
   function storiesReducer(state, action) {
     switch (action.type) {
@@ -94,16 +84,18 @@ function App() {
   }
 
   React.useEffect(() => {
+    if (!searchTerm) return;
     dispatchStories({ type: "STORIES_FETCH_INIT" });
-    getAsyncStories()
+    fetch(`${API_ENDPOINT}${searchTerm}`)
+      .then(response => response.json())
       .then(result => {
         dispatchStories({
           type: "STORIES_FETCH_SUCCESS",
-          payload: result.data.stories,
+          payload: result.hits,
         });
       })
       .catch(() => dispatchStories({ type: "STORIES_FETCH_FAILURE" }));
-  }, []);
+  }, [searchTerm]);
 
   return (
     <div>
@@ -123,7 +115,7 @@ function App() {
       {stories.isLoading ? (
         <p>Loading ...</p>
       ) : (
-        <List list={searchedStories} onRemoveItem={handleRemoveStory} />
+        <List list={stories.data} onRemoveItem={handleRemoveStory} />
       )}
 
       <hr />
