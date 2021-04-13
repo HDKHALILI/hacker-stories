@@ -45,18 +45,18 @@ function App() {
     setUrl(`${API_ENDPOINT}${searchTerm}`);
   }
 
-  const handleFetchStories = React.useCallback(() => {
-    if (!searchTerm) return;
+  const handleFetchStories = React.useCallback(async () => {
     dispatchStories({ type: "STORIES_FETCH_INIT" });
-    axios
-      .get(url)
-      .then(result => {
-        dispatchStories({
-          type: "STORIES_FETCH_SUCCESS",
-          payload: result.data.hits,
-        });
-      })
-      .catch(() => dispatchStories({ type: "STORIES_FETCH_FAILURE" }));
+
+    try {
+      const result = await axios.get(url);
+      dispatchStories({
+        type: "STORIES_FETCH_SUCCESS",
+        payload: result.data.hits,
+      });
+    } catch {
+      dispatchStories({ type: "STORIES_FETCH_FAILURE" });
+    }
   }, [url]);
 
   function handleSearchInput(event) {
