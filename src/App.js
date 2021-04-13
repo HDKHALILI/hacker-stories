@@ -14,25 +14,6 @@ function useSemiPersistentState(key) {
 const API_ENDPOINT = "https://hn.algolia.com/api/v1/search?query=";
 
 function App() {
-  const initialStories = [
-    {
-      title: "React",
-      url: "https://reactjs.org",
-      author: "Jordan Walke",
-      num_comments: 5,
-      points: 4,
-      objectID: 0,
-    },
-    {
-      title: "Redux",
-      url: "https://redux.js.org",
-      author: "Dan Abramov, Andrew Clark",
-      num_comments: 2,
-      points: 5,
-      objectID: 1,
-    },
-  ];
-
   const [searchTerm, setSearchTerm] = useSemiPersistentState("search");
   const [stories, dispatchStories] = React.useReducer(storiesReducer, {
     data: [],
@@ -41,8 +22,9 @@ function App() {
   });
   const [url, setUrl] = React.useState(`${API_ENDPOINT}${searchTerm}`);
 
-  function handleSearchSubmit() {
+  function handleSearchSubmit(event) {
     setUrl(`${API_ENDPOINT}${searchTerm}`);
+    event.preventDefault();
   }
 
   const handleFetchStories = React.useCallback(async () => {
@@ -110,18 +92,11 @@ function App() {
   return (
     <div>
       <h1>My Hacker Stories</h1>
-      <InputWithLabel
-        id="search"
-        value={searchTerm}
-        isFocused
-        onInputChange={handleSearchInput}
-      >
-        <strong>Search: </strong>
-      </InputWithLabel>
-
-      <button type="button" disabled={!searchTerm} onClick={handleSearchSubmit}>
-        Submit
-      </button>
+      <SearchForm
+        searchTerm={searchTerm}
+        onSearchInput={handleSearchInput}
+        onSearchSubmit={handleSearchSubmit}
+      />
       <hr />
 
       {stories.isError && <p>Something went wrong ...</p>}
@@ -199,6 +174,25 @@ function InputWithLabel({
         Searching for <strong>{value}</strong>.
       </p>
     </div>
+  );
+}
+
+function SearchForm({ searchTerm, onSearchInput, onSearchSubmit }) {
+  return (
+    <form onSubmit={onSearchSubmit}>
+      <InputWithLabel
+        id="search"
+        value={searchTerm}
+        isFocused
+        onInputChange={onSearchInput}
+      >
+        <strong>Search: </strong>
+      </InputWithLabel>
+
+      <button type="submit" disabled={!searchTerm}>
+        Submit
+      </button>
+    </form>
   );
 }
 
