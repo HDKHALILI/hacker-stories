@@ -70,9 +70,14 @@
   transition: all 0.1s ease-in;
 }
 
-.button:hover {
+/* .button:hover {
   background: #171212;
   color: #fff;
+} */
+
+.button:hover > svg > g {
+  fill: #fff;
+  stroke: #fff;
 }
 
 .buttonSmall {

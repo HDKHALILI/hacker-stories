@@ -2,12 +2,15 @@ import React from "react";
 import axios from "axios";
 import styled from "styled-components";
 
+import { ReactComponent as Check } from "./check.svg";
+
 // import styles from "./App.module.css";
 
 function useSemiPersistentState(key) {
   const [value, setValue] = React.useState(localStorage.getItem(key) || "");
 
   React.useEffect(() => {
+    console.log("A");
     localStorage.setItem(key, value);
   }, [value, key]);
 
@@ -191,7 +194,7 @@ function Item({ item, onRemoveItem }) {
       <StyledColumn width="10%">{item.points}</StyledColumn>
       <StyledColumn width="10%">
         <StyledButtonSmall type="button" onClick={handleRemoveItem}>
-          Dismiss
+          <Check height="18px" width="18px" />
         </StyledButtonSmall>
       </StyledColumn>
     </StyledItem>
